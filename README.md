@@ -14,6 +14,26 @@ Prereq: Docker Desktop (or Docker Engine) with **either** `docker compose` or `d
 ./install.sh
 ```
 
+## 双环境部署（推荐）
+
+### A) 海外/国际网络（GitHub + 官方镜像）
+
+```bash
+./deploy-global.sh
+```
+
+### B) 国内网络（Gitee + 国内镜像）
+
+先设置国内镜像地址再执行：
+
+```bash
+export CN_POSTGRES_IMAGE=registry.cn-hangzhou.aliyuncs.com/<你的命名空间>/postgres:16-alpine
+export CN_OPENCLAW_IMAGE=registry.cn-hangzhou.aliyuncs.com/<你的命名空间>/openclaw:latest
+./deploy-cn.sh
+```
+
+如果你已经在 `.env` 里写好了镜像地址，也可直接运行 `./deploy-cn.sh`。
+
 Then open:
 
 - Admin UI: http://localhost:8080/  （支持小白网页化配置：DeepSeek/飞书/保存并生效）
