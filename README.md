@@ -34,6 +34,18 @@ export CN_OPENCLAW_IMAGE=registry.cn-hangzhou.aliyuncs.com/<你的命名空间>/
 
 如果你已经在 `.env` 里写好了镜像地址，也可直接运行 `./deploy-cn.sh`。
 
+### 国内镜像同步脚本（给服务商用）
+
+项目提供：`sync-cn-images.sh`
+
+```bash
+export CN_REGISTRY=registry.cn-hangzhou.aliyuncs.com
+export CN_NAMESPACE=<你的命名空间>
+./sync-cn-images.sh
+```
+
+执行后会自动：拉上游镜像 → 打标签 → 登录国内仓库 → 推送，并输出客户可直接使用的 `CN_OPENCLAW_IMAGE` / `CN_POSTGRES_IMAGE`。
+
 Then open:
 
 - Admin UI: http://localhost:8080/  （支持小白网页化配置：DeepSeek/飞书/保存并生效）
