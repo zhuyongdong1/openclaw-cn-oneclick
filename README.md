@@ -32,6 +32,17 @@ export CN_OPENCLAW_IMAGE=registry.cn-hangzhou.aliyuncs.com/<你的命名空间>/
 ./deploy-cn.sh
 ```
 
+`deploy-cn.sh` 已内置：
+- Linux 自动配置 Docker 镜像加速并重启 Docker
+- Mac/Windows 提示去 Docker Desktop 手动配置
+
+如果你不想自动改 Docker 配置，可跳过：
+
+```bash
+export SKIP_DOCKER_MIRROR=1
+./deploy-cn.sh
+```
+
 如果你已经在 `.env` 里写好了镜像地址，也可直接运行 `./deploy-cn.sh`。
 
 ### 国内镜像同步脚本（给服务商用）
