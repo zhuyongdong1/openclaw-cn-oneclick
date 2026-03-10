@@ -31,6 +31,22 @@ If `18789` is already in use on your machine, `install.sh` will fall back to `28
 
 By default we use `OPENCLAW_IMAGE=ghcr.io/openclaw/openclaw:latest`.
 
+## 网页配置 .env（给不会命令行的客户）
+
+项目内置了网页配置器：
+
+- `tools/env-web-config.html`
+
+使用方式：
+
+1. 双击打开这个 HTML 文件（Mac/Windows 浏览器都可）
+2. 按表单填写密钥和参数
+3. 点击“下载 .env”
+4. 把下载的文件放到项目根目录（与 `docker-compose.yml` 同级）
+5. 执行 `./install.sh`
+
+> 注意：`.env` 包含敏感信息，不要上传到 GitHub。
+
 ## Dev
 
 ```bash

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 一键部署 .env 配置器</title>
+  <style>
+    :root { --bg:#0b1020; --card:#121a31; --text:#e8ecff; --muted:#9aa7d1; --accent:#7aa2ff; --ok:#2ac18a; --danger:#ff6b6b; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background:linear-gradient(180deg,#0b1020,#0f1530); color:var(--text); }
+    .wrap { max-width: 980px; margin: 28px auto; padding: 0 16px 40px; }
+    .card { background: var(--card); border:1px solid #222d56; border-radius:16px; padding:18px; margin-bottom:14px; }
+    h1 { font-size: 24px; margin: 0 0 8px; }
+    h2 { font-size: 17px; margin: 0 0 10px; color:#cfd8ff; }
+    p, li, label { color: var(--muted); font-size: 14px; }
+    .grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:10px 12px; }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    input, textarea, select { width:100%; border:1px solid #2a3768; background:#0f1630; color:var(--text); border-radius:10px; padding:10px 12px; font-size:14px; }
+    textarea { min-height:86px; resize:vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+    button { border:0; border-radius:10px; padding:10px 14px; font-weight:600; cursor:pointer; }
+    .btn-primary { background:var(--accent); color:#0c1430; }
+    .btn-ok { background:var(--ok); color:#072419; }
+    .btn-ghost { background:#1a2549; color:#d9e1ff; }
+    .hint { font-size:12px; color:#9fb0e7; }
+    .danger { color: var(--danger); font-size:12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>OpenClaw .env 网页配置器</h1>
+      <p>给不会终端的客户用：在浏览器填表 → 自动生成 <span class="mono">.env</span>。兼容 Mac / Windows，双击打开即可。</p>
+      <p class="danger">安全提示：不要把包含密钥的 .env 发到群聊或公开仓库。</p>
+    </div>
+
+    <div class="card">
+      <h2>1) 基础配置（必填）</h2>
+      <div class="grid">
+        <div class="field"><label>APP_NAME</label><input id="APP_NAME" value="OpenClaw CN OneClick" /></div>
+        <div class="field"><label>APP_ENV</label><input id="APP_ENV" value="local" /></div>
+        <div class="field"><label>ADMIN_EMAIL</label><input id="ADMIN_EMAIL" placeholder="admin@example.com" /></div>
+        <div class="field"><label>ADMIN_PASSWORD</label><input id="ADMIN_PASSWORD" placeholder="建议 12 位以上" /></div>
+        <div class="field"><label>SECRET_KEY</label><input id="SECRET_KEY" placeholder="留空可自动生成" /></div>
+        <div class="field"><label>POSTGRES_PASSWORD</label><input id="POSTGRES_PASSWORD" placeholder="留空可自动生成" /></div>
+        <div class="field"><label>OPENCLAW_GATEWAY_TOKEN</label><input id="OPENCLAW_GATEWAY_TOKEN" placeholder="留空可自动生成" /></div>
+        <div class="field"><label>OPENCLAW_GATEWAY_PORT</label><input id="OPENCLAW_GATEWAY_PORT" value="18789" /></div>
+      </div>
+      <p class="hint">数据库名和用户名默认都是 openclaw，通常不用改。</p>
+    </div>
+
+    <div class="card">
+      <h2>2) DeepSeek / 飞书（按需）</h2>
+      <div class="grid">
+        <div class="field"><label>DEEPSEEK_API_KEY</label><input id="DEEPSEEK_API_KEY" placeholder="sk-..." /></div>
+        <div class="field"><label>DEEPSEEK_BASE_URL</label><input id="DEEPSEEK_BASE_URL" placeholder="例如 https://api.deepseek.com" /></div>
+        <div class="field"><label>FEISHU_APP_ID</label><input id="FEISHU_APP_ID" /></div>
+        <div class="field"><label>FEISHU_APP_SECRET</label><input id="FEISHU_APP_SECRET" /></div>
+        <div class="field"><label>FEISHU_WEBHOOK</label><input id="FEISHU_WEBHOOK" placeholder="https://open.feishu.cn/..." /></div>
+      </div>
+      <p class="hint">如果你的项目字段名不同，也可以在“自定义变量”里追加。</p>
+    </div>
+
+    <div class="card">
+      <h2>3) 自定义变量（可选）</h2>
+      <p class="hint">每行一条：<span class="mono">KEY=VALUE</span>。例如：<span class="mono">OPENAI_MODEL=deepseek-chat</span></p>
+      <textarea id="EXTRA_VARS" placeholder="KEY=VALUE"></textarea>
+
+      <div class="actions">
+        <button class="btn-primary" onclick="generateEnv()">生成 .env 内容</button>
+        <button class="btn-ok" onclick="downloadEnv()">下载 .env</button>
+        <button class="btn-ghost" onclick="copyEnv()">复制到剪贴板</button>
+      </div>
+
+      <p id="msg" class="hint"></p>
+      <textarea id="OUTPUT" placeholder="这里会出现生成结果"></textarea>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function rand(n = 32) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+      let s = '';
+      for (let i = 0; i < n; i++) s += chars[Math.floor(Math.random() * chars.length)];
+      return s;
+    }
+
+    function val(id, fallback = '') {
+      const v = ($(id).value || '').trim();
+      return v || fallback;
+    }
+
+    function generateEnv() {
+      const secret = val('SECRET_KEY') || rand(40);
+      const pgPass = val('POSTGRES_PASSWORD') || rand(24);
+      const token = val('OPENCLAW_GATEWAY_TOKEN') || rand(32);
+      const port = val('OPENCLAW_GATEWAY_PORT', '18789');
+
+      const lines = [
+        '# Generated by env-web-config.html',
+        `APP_NAME=${val('APP_NAME', 'OpenClaw CN OneClick')}`,
+        `APP_ENV=${val('APP_ENV', 'local')}`,
+        '',
+        '# API',
+        'API_HOST=0.0.0.0',
+        'API_PORT=8080',
+        'API_BASE_URL=http://localhost:8080',
+        '',
+        '# Security',
+        `SECRET_KEY=${secret}`,
+        'ACCESS_TOKEN_EXPIRE_MINUTES=43200',
+        '',
+        '# Initial admin',
+        `ADMIN_EMAIL=${val('ADMIN_EMAIL', 'admin@example.com')}`,
+        `ADMIN_PASSWORD=${val('ADMIN_PASSWORD', 'change-me')}`,
+        '',
+        '# Database',
+        'POSTGRES_DB=openclaw',
+        'POSTGRES_USER=openclaw',
+        `POSTGRES_PASSWORD=${pgPass}`,
+        `DATABASE_URL=postgresql+psycopg://openclaw:${pgPass}@db:5432/openclaw`,
+        '',
+        '# OpenClaw (gateway)',
+        'OPENCLAW_IMAGE=ghcr.io/openclaw/openclaw:latest',
+        'OPENCLAW_GATEWAY_BIND=lan',
+        `OPENCLAW_GATEWAY_PORT=${port}`,
+        'OPENCLAW_BRIDGE_PORT=18790',
+        `OPENCLAW_GATEWAY_TOKEN=${token}`,
+        'OPENCLAW_CONFIG_DIR=./data/openclaw/config',
+        'OPENCLAW_WORKSPACE_DIR=./data/openclaw/workspace',
+      ];
+
+      const maybePush = (key) => {
+        const v = val(key);
+        if (v) lines.push(`${key}=${v}`);
+      };
+
+      lines.push('', '# Optional integrations');
+      ['DEEPSEEK_API_KEY','DEEPSEEK_BASE_URL','FEISHU_APP_ID','FEISHU_APP_SECRET','FEISHU_WEBHOOK'].forEach(maybePush);
+
+      const extra = $('EXTRA_VARS').value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .filter(s => !s.startsWith('#'));
+
+      if (extra.length) {
+        lines.push('', '# Extra custom vars');
+        lines.push(...extra);
+      }
+
+      $('OUTPUT').value = lines.join('\n') + '\n';
+      $('msg').textContent = '已生成 .env 内容。';
+    }
+
+    function downloadEnv() {
+      if (!$('OUTPUT').value.trim()) generateEnv();
+      const blob = new Blob([$('OUTPUT').value], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '.env';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      $('msg').textContent = '已下载 .env 文件。';
+    }
+
+    async function copyEnv() {
+      if (!$('OUTPUT').value.trim()) generateEnv();
+      try {
+        await navigator.clipboard.writeText($('OUTPUT').value);
+        $('msg').textContent = '已复制到剪贴板。';
+      } catch {
+        $('msg').textContent = '复制失败，请手动复制输出框内容。';
+      }
+    }
+  </script>
+</body>
+</html>
