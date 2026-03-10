@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,51 +10,50 @@
     <main class="wrap">
       <header class="top">
         <div class="brand">OpenClaw CN OneClick</div>
-        <div class="muted">Local Admin UI</div>
+        <div class="muted">小白配置中心</div>
       </header>
 
       <section class="card">
-        <h2>Status</h2>
-        <div class="row">
-          <button id="btn-health">Check health</button>
-          <code id="health-out" class="code">(not checked)</code>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Login</h2>
+        <h2>1) 登录</h2>
         <div class="grid">
-          <label>
-            <span>Email</span>
-            <input id="email" placeholder="admin@local" autocomplete="username" />
-          </label>
-          <label>
-            <span>Password</span>
-            <input id="password" type="password" placeholder="(from install output)" autocomplete="current-password" />
-          </label>
+          <label><span>邮箱</span><input id="email" placeholder="admin@local" autocomplete="username" /></label>
+          <label><span>密码</span><input id="password" type="password" autocomplete="current-password" /></label>
         </div>
         <div class="row">
-          <button id="btn-login">Get token</button>
-          <button id="btn-logout" class="secondary">Clear token</button>
+          <button id="btn-login">登录</button>
+          <button id="btn-logout" class="secondary">退出</button>
+          <button id="btn-health" class="secondary">检测服务</button>
         </div>
-        <div class="row">
-          <span class="muted">Token:</span>
-          <code id="token" class="code">(none)</code>
-        </div>
+        <code id="health-out" class="code">(not checked)</code>
       </section>
 
       <section class="card">
-        <h2>Audit Logs</h2>
+        <h2>2) 模型与飞书配置</h2>
+        <div class="grid">
+          <label><span>DeepSeek API Key</span><input id="deepseek_api_key" placeholder="sk-..." /></label>
+          <label><span>DeepSeek Base URL</span><input id="deepseek_base_url" placeholder="https://api.deepseek.com" /></label>
+          <label><span>飞书 App ID</span><input id="feishu_app_id" /></label>
+          <label><span>飞书 App Secret</span><input id="feishu_app_secret" /></label>
+          <label><span>飞书 Webhook</span><input id="feishu_webhook" /></label>
+          <label><span>Gateway Token（可留空）</span><input id="openclaw_gateway_token" /></label>
+          <label><span>Gateway 端口</span><input id="openclaw_gateway_port" value="18789" /></label>
+          <label><span>Bridge 端口</span><input id="openclaw_bridge_port" value="18790" /></label>
+        </div>
         <div class="row">
-          <button id="btn-audit">Refresh</button>
-          <span class="muted">Requires token</span>
+          <button id="btn-load" class="secondary">读取当前配置</button>
+          <button id="btn-save">保存配置</button>
+          <button id="btn-apply" class="ok">保存并生效（重启 Gateway）</button>
+        </div>
+        <div id="config-msg" class="hint"></div>
+      </section>
+
+      <section class="card">
+        <h2>3) 审计日志</h2>
+        <div class="row">
+          <button id="btn-audit" class="secondary">刷新日志</button>
         </div>
         <div id="audit" class="audit"></div>
       </section>
-
-      <footer class="foot muted">
-        API docs: <a href="/docs" target="_blank" rel="noreferrer">/docs</a>
-      </footer>
     </main>
     <script src="/static/app.js"></script>
   </body>

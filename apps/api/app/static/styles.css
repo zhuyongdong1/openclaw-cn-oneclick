@@ -141,6 +141,22 @@ button.secondary {
   font-size: 13px;
 }
 
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.danger {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.ok {
+  background: rgba(128, 224, 167, 0.28);
+}
+
 .foot {
   margin-top: 14px;
   font-size: 12px;

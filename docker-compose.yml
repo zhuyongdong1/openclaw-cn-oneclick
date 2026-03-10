@@ -27,6 +27,13 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       DATABASE_URL: ${DATABASE_URL}
+      PROJECT_ROOT: /stack
+      ENV_FILE: /stack/.env
+      OPENCLAW_CONFIG_PATH: /stack/data/openclaw/config/openclaw.json
+      COMPOSE_FILE: /stack/docker-compose.yml
+    volumes:
+      - ./:/stack
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       db:
         condition: service_healthy

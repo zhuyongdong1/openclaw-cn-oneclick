@@ -16,7 +16,7 @@ Prereq: Docker Desktop (or Docker Engine) with **either** `docker compose` or `d
 
 Then open:
 
-- Admin UI: http://localhost:8080/
+- Admin UI: http://localhost:8080/  （支持小白网页化配置：DeepSeek/飞书/保存并生效）
 - API docs (Swagger): http://localhost:8080/docs
 - OpenClaw Gateway: http://localhost:18789/ (health: /healthz)
 
