@@ -11,9 +11,15 @@ need_cmd() {
 }
 
 need_cmd docker
+need_cmd python3
 
-if ! docker compose version >/dev/null 2>&1; then
-  echo "Docker Compose not available. Install Docker Desktop (recommended)." >&2
+COMPOSE_CMD=()
+if docker compose version >/dev/null 2>&1; then
+  COMPOSE_CMD=(docker compose)
+elif command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE_CMD=(docker-compose)
+else
+  echo "Docker Compose not available. Install docker compose plugin or docker-compose." >&2
   exit 1
 fi
 
@@ -154,7 +160,7 @@ if [[ "$OPENCLAW_IMAGE_VALUE" == "openclaw:local" ]]; then
   fi
 fi
 
-docker compose -f "$ROOT_DIR/docker-compose.yml" up -d --build
+"${COMPOSE_CMD[@]}" -f "$ROOT_DIR/docker-compose.yml" up -d --build
 
 echo
 echo "Done. Open:" 

@@ -8,7 +8,7 @@ Local, one-click deployable stack:
 
 ## Quickstart (macOS/Linux)
 
-Prereq: Docker Desktop (or Docker Engine) with `docker compose`.
+Prereq: Docker Desktop (or Docker Engine) with **either** `docker compose` or `docker-compose`.
 
 ```bash
 ./install.sh
@@ -47,9 +47,25 @@ By default we use `OPENCLAW_IMAGE=ghcr.io/openclaw/openclaw:latest`.
 
 > 注意：`.env` 包含敏感信息，不要上传到 GitHub。
 
+## Ubuntu 常见问题（云服务器）
+
+如果你是通过 Ubuntu 仓库安装的 Docker，可能出现：
+
+- 有 `docker`，但没有 `docker compose`
+- `docker-compose-plugin` 包找不到
+
+可直接安装 v1：
+
+```bash
+sudo apt update
+sudo apt install -y docker-compose
+```
+
+本项目 `install.sh` 已兼容 `docker compose` / `docker-compose` 两种命令。
+
 ## Dev
 
 ```bash
-docker compose logs -f api
-docker compose down
+docker compose logs -f api || docker-compose logs -f api
+docker compose down || docker-compose down
 ```
